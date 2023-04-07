@@ -14,5 +14,8 @@ Register::register(
     'Weline_Frontend',
     __DIR__,
     '1.0.0',
-    '<a href="https://bbs.aiweline.com">前端模块</a>'
+    '<a href="https://bbs.aiweline.com">前端模块</a>',
+    [
+        'Weline_SystemConfig'
+    ]
 );
