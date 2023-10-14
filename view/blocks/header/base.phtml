@@ -9,10 +9,8 @@ $host        = $this->request->getBaseHost() . '/';
 $base_host                          = $this->request->getPrePath();
 $base_router                        = $this->request->getRouterData('router');
 $current_module                     = $this->request->getModuleName();
-$base_backend_url_host              = $this->request->getBaseHost() . '/' . \Weline\Framework\App\Env::getInstance()->getConfig('admin') . '/';
-$base_backend_api_host              = $this->request->getBaseHost() . '/' . \Weline\Framework\App\Env::getInstance()->getConfig('api_admin') . '/';
 $env_model                          = \Weline\Framework\App\Env::getInstance()->getConfig('deploy');
-$theme_path                         = \Weline\Framework\App\Env::getInstance()->getTheme()['path'];
+$theme_path                         = str_replace('\\', '/', \Weline\Framework\App\Env::getInstance()->getTheme()['path']);
 $env_model_media_base_path_template = $host . (DEV ? '/{module}/view/statics/{path}' : '/static/' . $theme_path . '/{module}/view/statics/{path}');
 $token = \Weline\Framework\Security\Token::create('csrf',16,600);
 ?>
@@ -55,11 +53,7 @@ endif;
         base_router: '{{base_router}}',
         i18n: <?= json_encode(Weline\Framework\Phrase\Parser::getWords())?>,
         themeConfig: <?=json_encode($themeConfig->getThemeConfig()) ?? '{}';?>,
-    }
-    window.media = (path, module = '{{current_module}}') => {
-        path = path.replace('*', '{{base_router}}')
-        module = module.replace('_', '/')
-        return '{{env_model_media_base_path_template}}'.replace('{path}', path).replace('{module}', module)
+        modulesPaths: <?=json_encode($module_paths??'{}');?> ,
     }
     window.path = (path) => {
         path = path.replace('*', '{{base_router}}')
@@ -71,6 +65,16 @@ endif;
         }
         return path;
     }
+    window.media = (path, module = '{{current_module}}') => {
+        if (typeof window.site.modulesPaths[module] === 'undefined') {
+            // 报错
+            if (window.site.env_model === 'dev') {
+                throw new Error(module + '@lang{模块不存在！}');
+            }
+        }
+        return '{{env_model_media_base_path_template}}'.replace('{path}', window.path(path)).replace('{module}', module)
+    }
+    
     window.url = (path) => {
         return '{{host}}' + window.path(path);
     }
