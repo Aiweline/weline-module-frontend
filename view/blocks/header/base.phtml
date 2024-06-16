@@ -83,7 +83,7 @@ endif;
 
 
     function selectLanguage(lang) {
-        setCookie('WELINE-USER-LANG', lang, 7, {path: '/{{area}}', domain: window.location.host});
+        setCookie('WELINE-USER-LANG', lang, 7, {path: '/', domain: window.location.host});
         let path = window.location.pathname;
         if (path.startsWith('/{{local.code}}')) {
             path = path.replace('/{{local.code}}', '/' + lang);
